@@ -11,6 +11,8 @@ python = "^3.10"
 openai = "^1.52.2"
 python-dotenv = "^1.0.1"
 loguru = "^0.7.2"
+pydantic = "^2.9.2"
+dspy = "^2.5.16"
 
 
 [build-system]
