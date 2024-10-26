@@ -1,5 +1,5 @@
 """
-    This script stores all the paths that are used in the dataset_wrangling module.
+This module contains the paths to the data folder and the root folder of the current module.
 """
 
 import os

@@ -1,5 +1,5 @@
 """
-    This script contains the dspy classes for generating LLM suggestions given user's information and context.
+This module contains classes to generate suggestions for the user's query using Chain of Thought reasoning.
 """
 
 import dspy

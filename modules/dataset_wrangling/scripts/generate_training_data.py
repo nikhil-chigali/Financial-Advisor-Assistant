@@ -1,6 +1,12 @@
 """
-    This script contains the functions to generate training data from one of the following large-language models:
-    ["openai/gpt-4o", "openai/gpt-4o-mini", "openai/gpt-3.5-turbo"]
+This script contains the functions to generate training data from one of the following llms:
+["openai/gpt-4o", "openai/gpt-4o-mini", "openai/gpt-3.5-turbo"]
+
+Usage:
+    python scripts/generate_training_data.py --model "openai/gpt-4o"
+
+Arguments:
+    --model (str): The name of the model to configure for data processing.
 """
 
 from typing import Dict, List
@@ -10,8 +16,6 @@ import os
 import sys
 import json
 import dspy
-
-
 from tqdm import tqdm
 from loguru import logger
 from dotenv import load_dotenv
