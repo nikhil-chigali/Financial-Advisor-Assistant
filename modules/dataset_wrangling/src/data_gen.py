@@ -6,7 +6,7 @@ import dspy
 
 
 class ResponseSignature(dspy.Signature):
-    """Generate a tailored answer to the user's question using the context and user's infomration"""
+    """Generate a tailored answer to the user's question using the context and user's information"""
 
     user_query = dspy.InputField(
         desc="Information about the user followed by a question"

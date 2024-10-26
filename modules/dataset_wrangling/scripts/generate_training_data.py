@@ -32,8 +32,12 @@ def configure_dspy(model_name: str) -> None:
         None
     """
     load_dotenv()
-    if "OPENAI_API_KEY" in os.environ:
-        logger.debug("API Key is Available..")
+    try:
+        if "OPENAI_API_KEY" not in os.environ:
+            raise KeyError("API Key is not available")
+    except KeyError as e:
+        logger.error(f"Error: {e}")
+        sys.exit(1)
 
     logger.info(f"Setting DSPY LM: {model_name}")
     lm = dspy.LM(model_name)
@@ -65,13 +69,10 @@ def generate_data(examples: List[Dict]) -> List[Dict]:
         enumerate(examples), desc="Generating response", total=len(examples)
     ):
         output = lm_module(**example)
-        reason, response = output.reasoning, output.response
-        example["answer"] = f"{reason} {response}"
+
+        example["answer"] = output.response
 
         data.append(example)
-
-        if i == 5:
-            break
 
     return data
 
@@ -111,10 +112,6 @@ def main(model_name: str) -> None:
 
     Returns:
         None
-
-    Logs:
-        Information about the loading of examples, the number of generated data entries,
-        and the path where the data is saved.
     """
     configure_dspy(model_name)
 
