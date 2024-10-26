@@ -7,13 +7,21 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.13"
 openai = "^1.52.2"
 python-dotenv = "^1.0.1"
 loguru = "^0.7.2"
 pydantic = "^2.9.2"
 dspy-ai = "^2.5.16"
+unstructured = "^0.16.3"
+torch = {version = "^2.5.0+cu121", source = "torchwheels"}
+transformers = "^4.46.0"
 
+
+[[tool.poetry.source]]
+name = "torchwheels"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]

@@ -7,8 +7,6 @@ import os
 import sys
 from pathlib import Path
 
-import html
-import re
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -38,28 +36,6 @@ class News:
     summary: str
     content: str
     date: datetime
-
-
-def clean_text(content: str) -> str:
-    """
-    Cleans the content of the news articles by removing special characters, stopwords, html tags and blank spaces
-
-    Args:
-        content (str): The content of the news article
-
-    Returns:
-        str: The cleaned content of the news article
-    """
-    # Remove HTML entities
-    clean_content = html.unescape(content)
-
-    # Remove HTML tags
-    clean_content = re.sub(r"<[^>]*>", "", clean_content)
-
-    # Remove spaces and newlines
-    clean_content = re.sub(r"\s+", " ", clean_content)
-
-    return clean_content
 
 
 def fetch_news_batch(
@@ -112,9 +88,9 @@ def fetch_news_batch(
     # Extract news articles from the response
     news_batch = []
     for news in data["news"]:
-        headline = clean_text(news["headline"])
-        summary = clean_text(news["summary"])
-        content = clean_text(news["content"])
+        headline = news["headline"]
+        summary = news["summary"]
+        content = news["content"]
         date = datetime.fromisoformat(news["updated_at"])
 
         news_batch.append(News(headline, summary, content, date))
@@ -135,7 +111,7 @@ def save_news_to_json(news: List[News]) -> Path:
     # Get the start and end date of the news articles
     from_date = news[0].date.strftime("%Y-%m-%d")
     to_date = news[-1].date.strftime("%Y-%m-%d")
-    filename = DATA_PATH / "news" / f"news_{from_date}_{to_date}.json"
+    filename = DATA_PATH / "raw_news" / f"news_{from_date}_{to_date}.json"
 
     # Save the news to a JSON file
     with open(filename, "w", encoding="utf-8") as f:
