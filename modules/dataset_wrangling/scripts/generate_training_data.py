@@ -21,7 +21,7 @@ from loguru import logger
 from dotenv import load_dotenv
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from src.paths import ROOT_PATH, DATA_PATH
+from src.paths import DATA_PATH
 from src.data_gen import GenerateSuggestions
 
 

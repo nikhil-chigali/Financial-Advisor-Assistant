@@ -1,5 +1,9 @@
+"""
+This module contains classes for the ETL pipeline of the news articles.
+"""
+
 from typing import List, Optional, Dict
-from hashlib import sha256
+from hashlib import md5
 from unstructured.partition.html import partition_html
 from unstructured.cleaners.core import (
     clean_non_ascii_chars,
@@ -8,24 +12,13 @@ from unstructured.cleaners.core import (
 )
 from unstructured.staging.huggingface import chunk_by_attention_window
 from transformers import AutoTokenizer, AutoModel
-from pydantic import BaseModel
 from loguru import logger
+
+from src.utils import Document
 
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 QDRANT_VECTOR_SIZE = 384
-
-
-class Document(BaseModel):
-    """
-    A document object that contains the text, metadata, chunks and embeddings of a news article
-    """
-
-    id: str
-    text: Optional[List[str]] = []
-    metadata: Optional[Dict] = []
-    chunks: Optional[List[str]] = []
-    embeddings: Optional[List[List[float]]] = []
 
 
 def parse_article(article: Dict) -> Document:
@@ -44,11 +37,11 @@ def parse_article(article: Dict) -> Document:
     headline = clean(clean_non_ascii_chars(replace_unicode_quotes(article["headline"])))
 
     # Partition the content
-    content = " ".join([str(partition) for partition in partition_html(content)])
+    content = " ".join([str(partition) for partition in partition_html(text=content)])
 
     # Create a document object
     doc = Document(
-        id=sha256(article["content"].encode()).hexdigest(),
+        id=md5(article["content"].encode()).hexdigest(),
         text=[headline, summary, content],
         metadata={
             "date": article["date"],
@@ -107,17 +100,3 @@ def embed_document(document: Document) -> Document:
         document.embeddings.append(embedding_list)
 
     return document
-
-
-def process_document(article: Dict) -> List[Document]:
-    # Parsing the doc
-    logger.debug("Parsing a new article")
-    document = parse_article(article)
-
-    # Chunking the doc
-    logger.debug(f"Chunking document {document.id}")
-    document = chunk_document(document)
-
-    # Embedding the doc
-    logger.debug(f"Embedding document {document.id}")
-    document = embed_document(document)

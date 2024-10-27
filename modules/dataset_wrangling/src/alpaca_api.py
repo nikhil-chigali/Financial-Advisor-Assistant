@@ -8,13 +8,13 @@ import sys
 from pathlib import Path
 
 import json
-from dataclasses import dataclass
 from datetime import datetime
 import requests
 from loguru import logger
 from dotenv import load_dotenv
 
-from src.paths import DATA_PATH
+from src.paths import RAW_NEWS_PATH
+from src.utils import News
 
 load_dotenv()
 
@@ -24,18 +24,6 @@ try:
 except KeyError as e:
     logger.error(f"Error: {e}")
     sys.exit(1)
-
-
-@dataclass
-class News:
-    """
-    Dataclass for News
-    """
-
-    headline: str
-    summary: str
-    content: str
-    date: datetime
 
 
 def fetch_news_batch(
@@ -111,7 +99,10 @@ def save_news_to_json(news: List[News]) -> Path:
     # Get the start and end date of the news articles
     from_date = news[0].date.strftime("%Y-%m-%d")
     to_date = news[-1].date.strftime("%Y-%m-%d")
-    filename = DATA_PATH / "raw_news" / f"news_{from_date}_{to_date}.json"
+
+    os.makedirs(RAW_NEWS_PATH, exist_ok=True)
+
+    filename = RAW_NEWS_PATH / f"news_{from_date}_{to_date}.json"
 
     # Save the news to a JSON file
     with open(filename, "w", encoding="utf-8") as f:
