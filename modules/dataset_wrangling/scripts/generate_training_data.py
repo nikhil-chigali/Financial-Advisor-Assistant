@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from src.paths import DATA_PATH
-from src.data_gen import GenerateSuggestions
+from src.dspy_datagen import GenerateSuggestions
 
 
 def configure_dspy(model_name: str) -> None:
