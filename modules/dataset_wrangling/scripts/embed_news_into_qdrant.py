@@ -30,12 +30,7 @@ from src.vector_db_api import (
 
 QDRANT_COLLECTION_NAME = "alpaca_news"
 VECTOR_SIZE = 384
-qdrant_client = get_qdrant_client()
-qdrant_client = init_collection(
-    qdrant_client,
-    QDRANT_COLLECTION_NAME,
-    VECTOR_SIZE,
-)
+LOGGING_LEVEL = "INFO"
 
 
 def load_news(from_date: str, to_date: str) -> Dict:
@@ -72,20 +67,29 @@ def process_and_push_document(
     Returns:
     - None
     """
+
+    # Instantiating qdrant client
+    qdrant_client = get_qdrant_client()
+    qdrant_client = init_collection(
+        qdrant_client,
+        QDRANT_COLLECTION_NAME,
+        VECTOR_SIZE,
+    )
+
     # Parsing the doc
-    logger.debug("Parsing a new article")
     document = parse_article(article)
 
     # Chunking the doc
-    logger.debug(f"Chunking document {document.id}")
     document = chunk_document(document)
 
     # Embedding the doc
-    logger.debug(f"Embedding document {document.id}")
     document = embed_document(document)
 
     # Push document to the qdrant collection
     push_document_to_qdrant(document, qdrant_client, QDRANT_COLLECTION_NAME)
+
+    # Closing qdrant client
+    qdrant_client.close()
 
 
 def embed_news_into_qdrant(
@@ -102,21 +106,29 @@ def embed_news_into_qdrant(
     Returns:
     - None
     """
-    logger.info("Number of system processes: {num_processes}")
+    logger.info(f"Number of system processes: {num_processes}")
     if num_processes == 1:
-        for doc in news_data:
+        for doc in tqdm(
+            news_data, total=len(news_data), desc="Processing", unit="news"
+        ):
             process_and_push_document(doc)
 
     else:
-        with multiprocessing.Pool(processes=num_processes) as pool:
-            _ = list(
-                tqdm(
-                    pool.imap(process_and_push_document, news_data),
-                    total=len(news_data),
-                    desc="Processing",
-                    unit="news",
+        try:
+            with multiprocessing.Pool(processes=num_processes) as pool:
+                _ = list(
+                    tqdm(
+                        pool.imap(process_and_push_document, news_data),
+                        total=len(news_data),
+                        desc="Processing",
+                        unit="news",
+                    )
                 )
+        except Exception as e:
+            logger.error(
+                f"Couldn't spawn {num_processes} processes. \nContinuing on a single process."
             )
+            embed_news_into_qdrant(news_data, 1)
 
 
 def main(from_date: str, to_date: str, num_processes: int) -> None:
@@ -159,9 +171,11 @@ if __name__ == "__main__":
         help="Number of system processes.",
     )
     args = parser.parse_args()
-
-    # Set logger level to INFO
-    logger.remove()
-    logger.add(sys.stdout, level="INFO")
+    logger.add(
+        "logs/detailed_logs.log",
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {module}:{function}:{line} | {message}",
+        rotation="50 MB",
+        retention="20 days",
+    )
 
     main(args.from_date, args.to_date, args.num_processes)

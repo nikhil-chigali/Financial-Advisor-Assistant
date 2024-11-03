@@ -53,4 +53,12 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    logger.add(
+        "logs/detailed_logs.log",
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {module}:{function}:{line} | {message}",
+        rotation="50 MB",
+        retention="20 days",
+        level="DEBUG",
+    )
+
     main(args.from_date, args.to_date)

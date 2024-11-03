@@ -86,19 +86,18 @@ def fetch_news_batch(
     return news_batch, next_page_token
 
 
-def save_news_to_json(news: List[News]) -> Path:
+def save_news_to_json(news: List[News], from_date: str, to_date: str) -> Path:
     """
     Save news to JSON file in the `data` directory
 
     Args:
         list_of_news (List[News]): A list of news articles
+        from_date (str): The start date
+        to_date (str): The end date
 
     Returns:
         Path: The path to the saved JSON file
     """
-    # Get the start and end date of the news articles
-    from_date = news[0].date.strftime("%Y-%m-%d")
-    to_date = news[-1].date.strftime("%Y-%m-%d")
 
     os.makedirs(RAW_NEWS_PATH, exist_ok=True)
 
@@ -157,7 +156,11 @@ def download_historical_news(from_date: datetime, to_date: datetime) -> Path:
 
     # Save news to JSON file
     logger.info("Saving news to JSON")
-    filename = save_news_to_json(list_of_news)
+    filename = save_news_to_json(
+        list_of_news,
+        from_date.strftime("%Y-%m-%d"),
+        to_date.strftime("%Y-%m-%d"),
+    )
     logger.info(f"News saved to {filename}")
 
     return filename
