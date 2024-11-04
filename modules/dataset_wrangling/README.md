@@ -103,6 +103,31 @@ python scripts/embed_news_into_qdrant.py \
     --num_processes 4
 ```
 
+#### Using the Scripts (Combining Steps 2 & 3)
+
+##### Download and Push data from 2024.
+
+```bash
+sh download_news_and_push_to_qdrant.sh
+```
+
+##### Download and Push data from input year and month range.
+
+```bash
+sh range_download_news_push_to_qdrant.sh [YEAR] [START_MONTH] [END_MONTH]
+
+# Usage
+
+## For a year.
+sh range_download_news_push_to_qdrant.sh 2023
+
+## For a month range - Downloads for March, April and May of 2023.
+sh range_download_news_push_to_qdrant.sh 2023 3 5
+
+## For a single month - Download for March 0f 2023 only.
+sh range_download_news_push_to_qdrant.sh 2023 3 3
+```
+
 ## 📁 Project Structure
 
 ```
